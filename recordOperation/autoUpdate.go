@@ -1,9 +1,10 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/types"
 	"fmt"
+	"github.com/sunliang711/aliddns/types"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -27,7 +28,8 @@ func (o *Operator) automaticUpdate() {
 		log.Printf(">>GetNewIp error:%s", err)
 		return
 	}
-	log.Printf("new ip: %s", newValue)
+	newValue = strings.TrimSpace(newValue)
+	log.Printf("New ip: %s", newValue)
 	//1. getRecordId
 	subDomain := fmt.Sprintf("%v.%v", o.Config.RR, o.Config.DomainName)
 	recordId, currentIp, err := o.GetRecordId(subDomain)
@@ -37,6 +39,7 @@ func (o *Operator) automaticUpdate() {
 		log.Printf(">>Exist such subDomain,but cann't get recordId")
 		return
 	}
+	currentIp = strings.TrimSpace(currentIp)
 	log.Printf("Current ip: %s", currentIp)
 	if currentIp != newValue {
 		//2. update
