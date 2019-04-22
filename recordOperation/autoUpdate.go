@@ -22,7 +22,10 @@ func (o *Operator) AutomaticUpdate() {
 }
 
 func (o *Operator) automaticUpdate() {
-	log.Printf("**************************AutomaticUpdate()**************************")
+	log.Printf("**************************automaticUpdate()**************************")
+	defer func() {
+		log.Printf("**************************Leave automaticUpdate()**************************")
+	}()
 	newValue, err := o.GetNewIP()
 	if err != nil {
 		log.Printf(">>GetNewIp error:%s", err)

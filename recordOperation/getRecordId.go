@@ -1,10 +1,10 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/types"
 	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sunliang711/aliddns/types"
 	"log"
 	"net/http"
 	"strings"
@@ -35,6 +35,9 @@ type SubDomainRecordResponse struct {
 //return : id,current ip,err
 func (o *Operator) GetRecordId(subDomain string) (string, string, error) {
 	log.Printf("GetRecordId(): subDomain:%v", subDomain)
+	defer func() {
+		log.Printf("Leave GetRecordId()")
+	}()
 
 	request := alidns.CreateDescribeSubDomainRecordsRequest()
 

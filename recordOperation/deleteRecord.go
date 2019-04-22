@@ -1,9 +1,9 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/types"
 	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sunliang711/aliddns/types"
 	"log"
 	"net/http"
 )
@@ -13,8 +13,11 @@ type DeleteRecordResponse struct {
 	RecordId  string `json:"RecordId"`
 }
 
-func (o *Operator)DeleteRecord(recordId string) (string, error) {
+func (o *Operator) DeleteRecord(recordId string) (string, error) {
 	log.Printf("DeleteRecord(): recordId: %v", recordId)
+	defer func() {
+		log.Printf("Leave DeleteRecord()")
+	}()
 
 	request := alidns.CreateDeleteDomainRecordRequest()
 

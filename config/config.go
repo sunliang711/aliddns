@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/pelletier/go-toml"
 	"io/ioutil"
@@ -14,7 +15,7 @@ type Config struct {
 	AccessKey    string `toml:"access_key"`
 	AccessSecret string `toml:"access_secret"`
 	//0 表示只更新一次
-	UpdateInterval uint    `toml:"update_interval"`
+	UpdateInterval uint   `toml:"update_interval"`
 	Type           string `toml:"type"`
 	RR             string `toml:"rr"`
 	DomainName     string `toml:"domain_name"`
@@ -27,8 +28,8 @@ type Config struct {
 	//或者直接http.get(NewIpSource)然后对结果使用正则表达式FilterIpRegex来匹配,最后在匹配到的结果中选择第Index个作为新ip
 	NewIpSource   string `toml:"new_ip_source"`
 	FilterIpRegex string `toml:"filter_ip_regex"`
-	MasterIndex   uint    `toml:"master_index"`
-	SlaveIndex    uint    `toml:"slave_index"`
+	MasterIndex   uint   `toml:"master_index"`
+	SlaveIndex    uint   `toml:"slave_index"`
 }
 
 func (cfg *Config) String() string {
@@ -40,10 +41,12 @@ func NewConfig(filename string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	//配置文件中正则表达式需要两个反斜杠来转移,比较麻烦,在这里,把所有'\'替换成'\\'
+	bs = bytes.Replace(bs, []byte("\\"), []byte("\\\\"), -1)
 	var cfg Config
 	err = toml.Unmarshal(bs, &cfg)
 	if err != nil {
-		log.Printf("toml.Unmarshal error: %s",err)
+		log.Printf("toml.Unmarshal error: %s", err)
 		return nil, err
 	}
 	log.Printf("Config: %+v", cfg)

@@ -1,8 +1,8 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/types"
 	"bytes"
+	"github.com/sunliang711/aliddns/types"
 	"io"
 	"log"
 	"net/http"
@@ -11,6 +11,10 @@ import (
 )
 
 func (o *Operator) GetNewIP() (string, error) {
+	log.Printf("GetNewIP()")
+	defer func() {
+		log.Printf("Leave GetNewIP()")
+	}()
 	if len(o.Config.NewIpCommand) > 0 {
 		result, err := exec.Command("sh", "-c", o.Config.NewIpCommand).Output()
 		if err != nil {

@@ -1,11 +1,11 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/types"
 	"encoding/json"
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sunliang711/aliddns/types"
 	"log"
 	"net/http"
 )
@@ -15,8 +15,11 @@ type UpdateRecordResponse struct {
 	RecordId  string `json:"RecordId"`
 }
 
-func (o *Operator)UpdateRecord(recordId, RR, Type, Value, TTL string) (string, error) {
+func (o *Operator) UpdateRecord(recordId, RR, Type, Value, TTL string) (string, error) {
 	log.Printf("UpdateRecord(): recordId:%v, RR:%v, Type:%v, Value:%v, TTL:%v", recordId, RR, Type, Value, TTL)
+	defer func() {
+		log.Printf("Leave UpdateRecord()")
+	}()
 
 	request := alidns.CreateUpdateDomainRecordRequest()
 

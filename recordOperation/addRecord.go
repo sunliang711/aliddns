@@ -18,6 +18,9 @@ type addRecordResponse struct {
 //return RecordId,error
 func (o *Operator) AddRecord(DomainName, Type, RR, Value, TTL string) (string, error) {
 	log.Printf("AddRecord(): DomainName:%v, Type:%v, RR:%v, Value:%v, TTL:%v", DomainName, Type, RR, Value, TTL)
+	defer func() {
+		log.Printf("Leave AddRecord()")
+	}()
 
 	request := alidns.CreateAddDomainRecordRequest()
 
