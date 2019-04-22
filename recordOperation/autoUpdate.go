@@ -38,6 +38,7 @@ func (o *Operator) automaticUpdate() {
 	recordId, currentIp, err := o.GetRecordId(subDomain)
 	if err == types.ErrNoSubDomain {
 		recordId, err = o.AddRecord(o.Config.DomainName, o.Config.Type, o.Config.RR, newValue, o.Config.TTL)
+		return
 	} else if err != nil {
 		log.Printf(">>Exist such subDomain,but cann't get recordId")
 		return

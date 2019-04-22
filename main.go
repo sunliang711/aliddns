@@ -14,7 +14,6 @@ var (
 )
 
 func main() {
-	//TODO:配置文件中正则表达式需要两个反斜杠来转移,比较麻烦
 	version := pflag.BoolP("version", "v", false, "show version")
 	pflag.Parse()
 
