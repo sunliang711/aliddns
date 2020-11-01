@@ -70,6 +70,32 @@ build(){
     echo "Build main.go..."
     go build -ldflags "-X main.sha1ver=$sha1 -X main.buildTime=$now" -o aliddns ./main.go
 }
+
+install(){
+    if ! command -v systemctl >/dev/null 2>&1;then
+        echo "Only on Linux with systemd."
+        exit 1
+    fi
+    build
+    sed -e "s|ALIDDNS|${this}/aliddns|g" \
+        -e "s|CWD|${this}|g" \
+        ./aliddns.service > /tmp/aliddns.service
+    sudo mv /tmp/aliddns.service /etc/systemd/system
+    echo "Enable aliddns.service"
+    sudo systemctl enable aliddns.service
+    echo "Start aliddns.service"
+    sudo systemctl start aliddns.service
+}
+
+uninstall(){
+    echo "Disable aliddns.service"
+    sudo systemctl disable aliddns.service
+    echo "Stop aliddns.service"
+    sudo systemctl stop aliddns.service
+    echo "rm aliddns.service"
+    sudo rm /etc/systemd/system/aliddns.service
+}
+
 em(){
     $editor $0
 }
