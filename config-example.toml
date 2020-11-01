@@ -20,6 +20,8 @@ ttl = "800"
 
 ##获取最新WAN口ip命令,为空时,启用下面四个参数来获取ip
 new_ip_command="curl -s whatismyip.akamai.com"
+# or
+# new_ip_command="curl -s myip.ipip.net | perl -lne 'print $1 if /((\d+\.){3}\d+)/'"
 
 ##当new_ip_command为空时,使用下面四个参数来获取ip
 ###调用http GET方法从new_ip_source获取输出

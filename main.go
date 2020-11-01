@@ -2,26 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/spf13/pflag"
+	"log"
+
 	"github.com/sunliang711/aliddns/config"
 	"github.com/sunliang711/aliddns/recordOperation"
-	"log"
 )
 
 var (
-	Build   string
-	Version string
+	sha1ver   string
+	buildTime string
 )
 
 func main() {
-	version := pflag.BoolP("version", "v", false, "show version")
-	pflag.Parse()
-
-	if *version {
-		fmt.Printf("Version: %s\n", Version)
-		fmt.Printf("Build at: %s\n", Build)
-		return
-	}
+	fmt.Printf("Version: %v\n", sha1ver)
+	fmt.Printf("Build time: %v\n", buildTime)
 	cfg, err := config.NewConfig("config.toml")
 	if err != nil {
 		log.Fatalf("NewConfig error: %s", err)
