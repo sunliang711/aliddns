@@ -16,7 +16,7 @@ rr = "wkm2"
 ##一级域名
 domain_name ="example.com"
 ##TTL值
-ttl = "800"
+ttl = "600"
 
 ##获取最新WAN口ip命令,为空时,启用下面四个参数来获取ip
 new_ip_command="curl -s whatismyip.akamai.com"
