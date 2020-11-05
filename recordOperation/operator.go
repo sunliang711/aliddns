@@ -1,11 +1,11 @@
 package recordOperation
 
 import (
-	"github.com/sunliang711/aliddns/config"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
-	"log"
 	"regexp"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sunliang711/aliddns/config"
 )
 
 type Operator struct {
@@ -28,7 +28,6 @@ func NewOperator(cfg *config.Config) (*Operator, error) {
 		re, err := regexp.Compile(o.Config.FilterIpRegex)
 		if err != nil {
 			msg := fmt.Sprintf("NewipCommand is null and compile filterIpRegex failed:%v", err)
-			log.Println(msg)
 			return nil, fmt.Errorf(msg)
 		}
 		o.filterIpRegex = re

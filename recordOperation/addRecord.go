@@ -2,11 +2,13 @@ package recordOperation
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sirupsen/logrus"
 	"github.com/sunliang711/aliddns/types"
-	"log"
-	"net/http"
 )
 
 //REF https://help.aliyun.com/document_detail/29772.html?spm=a2c4g.11186623.6.640.2c6f3192OeaBJ0
@@ -17,10 +19,7 @@ type addRecordResponse struct {
 
 //return RecordId,error
 func (o *Operator) AddRecord(DomainName, Type, RR, Value, TTL string) (string, error) {
-	log.Printf("AddRecord(): DomainName:%v, Type:%v, RR:%v, Value:%v, TTL:%v", DomainName, Type, RR, Value, TTL)
-	defer func() {
-		log.Printf("Leave AddRecord()")
-	}()
+	logrus.Infof("AddRecord(): DomainName:%v, Type:%v, RR:%v, Value:%v, TTL:%v", DomainName, Type, RR, Value, TTL)
 
 	request := alidns.CreateAddDomainRecordRequest()
 
@@ -32,18 +31,15 @@ func (o *Operator) AddRecord(DomainName, Type, RR, Value, TTL string) (string, e
 
 	response, err := o.client.AddDomainRecord(request)
 	if err != nil {
-		log.Printf(">>AddDomainRecord error: %v", err)
-		return "", err
+		return "", fmt.Errorf("AddRecord error: %v", err)
 	}
 	if response.GetHttpStatus() != http.StatusOK {
-		log.Printf(">>%v", types.ErrHttpStatusNotOK)
-		return "", types.ErrHttpStatusNotOK
+		return "", fmt.Errorf("AddRecord error: %v", types.ErrHttpStatusNotOK)
 	}
 	var res addRecordResponse
 	err = json.Unmarshal(response.GetHttpContentBytes(), &res)
 	if err != nil {
-		log.Printf(">>json.Unmarshal error:%v", err)
-		return "", err
+		return "", fmt.Errorf("AddRecord error: %v", err)
 	}
 	return res.RecordId, nil
 }

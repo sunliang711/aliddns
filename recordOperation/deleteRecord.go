@@ -2,10 +2,12 @@ package recordOperation
 
 import (
 	"encoding/json"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
-	"github.com/sunliang711/aliddns/types"
-	"log"
+	"fmt"
 	"net/http"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sirupsen/logrus"
+	"github.com/sunliang711/aliddns/types"
 )
 
 type DeleteRecordResponse struct {
@@ -14,10 +16,7 @@ type DeleteRecordResponse struct {
 }
 
 func (o *Operator) DeleteRecord(recordId string) (string, error) {
-	log.Printf("DeleteRecord(): recordId: %v", recordId)
-	defer func() {
-		log.Printf("Leave DeleteRecord()")
-	}()
+	logrus.Infof("DeleteRecord(): recordId: %v", recordId)
 
 	request := alidns.CreateDeleteDomainRecordRequest()
 
@@ -25,24 +24,19 @@ func (o *Operator) DeleteRecord(recordId string) (string, error) {
 
 	response, err := o.client.DeleteDomainRecord(request)
 	if err != nil {
-		log.Printf(">>DeleteDomainRecord() error:%v", err)
-		return "", err
+		return "", fmt.Errorf("DeleteRecord error: %v", err)
 	}
 	if response.GetHttpStatus() != http.StatusOK {
-		log.Printf(">>%v", types.ErrHttpStatusNotOK)
-		return "", types.ErrHttpStatusNotOK
+		return "", fmt.Errorf("DeleteRecord error: %v", types.ErrHttpStatusNotOK)
 	}
 
 	var res DeleteRecordResponse
 	err = json.Unmarshal(response.GetHttpContentBytes(), &res)
 	if err != nil {
-		log.Printf(">>json.Unmarshal error: %v", err)
-		return "", err
+		return "", fmt.Errorf("DeleteRecord error: %v", err)
 	}
 	if res.RecordId != recordId {
-		log.Printf(">>%v", types.ErrResponseIdNotMatchRequestId)
-		log.Printf(">>response id:%v, request id:%v", res.RecordId, recordId)
-		return "", types.ErrResponseIdNotMatchRequestId
+		return "", fmt.Errorf("DeleteRecord error: %v", types.ErrResponseIdNotMatchRequestId)
 	}
 	return response.GetHttpContentString(), nil
 }

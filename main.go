@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/sirupsen/logrus"
 	"github.com/sunliang711/aliddns/config"
 	"github.com/sunliang711/aliddns/recordOperation"
 )
@@ -18,13 +18,33 @@ func main() {
 	fmt.Printf("Build time: %v\n", buildTime)
 	cfg, err := config.NewConfig("config.toml")
 	if err != nil {
-		log.Fatalf("NewConfig error: %s", err)
+		logrus.Fatalf("NewConfig error: %s", err)
 	}
 
+	logrus.SetLevel(lvl(cfg.Loglevel))
 	operator, err := recordOperation.NewOperator(cfg)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	operator.AutomaticUpdate()
+}
+
+func lvl(level string) logrus.Level {
+	switch level {
+	case "trace":
+		return logrus.TraceLevel
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
+		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	case "fatal":
+		return logrus.FatalLevel
+	default:
+		return logrus.InfoLevel
+	}
 }

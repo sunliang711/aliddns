@@ -3,11 +3,12 @@ package recordOperation
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sirupsen/logrus"
 	"github.com/sunliang711/aliddns/types"
-	"log"
-	"net/http"
 )
 
 type UpdateRecordResponse struct {
@@ -16,10 +17,7 @@ type UpdateRecordResponse struct {
 }
 
 func (o *Operator) UpdateRecord(recordId, RR, Type, Value, TTL string) (string, error) {
-	log.Printf("UpdateRecord(): recordId:%v, RR:%v, Type:%v, Value:%v, TTL:%v", recordId, RR, Type, Value, TTL)
-	defer func() {
-		log.Printf("Leave UpdateRecord()")
-	}()
+	logrus.Infof("UpdateRecord(): recordId:%v, RR:%v, Type:%v, Value:%v, TTL:%v", recordId, RR, Type, Value, TTL)
 
 	request := alidns.CreateUpdateDomainRecordRequest()
 
@@ -31,24 +29,20 @@ func (o *Operator) UpdateRecord(recordId, RR, Type, Value, TTL string) (string, 
 
 	response, err := o.client.UpdateDomainRecord(request)
 	if err != nil {
-		log.Printf(">>UpdateDomainRecord error:%v", err)
-		fmt.Print(err.Error())
+		return "", fmt.Errorf("UpdateDomainRecord error: %v", err)
 	}
 
 	if response.GetHttpStatus() != http.StatusOK {
-		log.Printf(">>%v", types.ErrHttpStatusNotOK)
-		return "", types.ErrHttpStatusNotOK
+		return "", fmt.Errorf("UpdateDomainRecord error: %v", types.ErrHttpStatusNotOK)
 	}
 	var res UpdateRecordResponse
 	err = json.Unmarshal(response.GetHttpContentBytes(), &res)
 	if err != nil {
-		log.Printf(">>json.Unmarshal error:%v", err)
-		return "", err
+		return "", fmt.Errorf("UpdateDomainRecord error: %v", err)
 	}
 
 	if res.RecordId != recordId {
-		log.Printf(">>%v", types.ErrResponseIdNotMatchRequestId)
-		return "", types.ErrResponseIdNotMatchRequestId
+		return "", fmt.Errorf("UpdateDomainRecord error: %v", types.ErrResponseIdNotMatchRequestId)
 	}
 
 	return response.GetHttpContentString(), nil

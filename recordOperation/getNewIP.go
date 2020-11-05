@@ -2,42 +2,41 @@ package recordOperation
 
 import (
 	"bytes"
-	"github.com/sunliang711/aliddns/types"
 	"io"
-	"log"
 	"net/http"
 	"os/exec"
 	"regexp"
+
+	"github.com/sirupsen/logrus"
+	"github.com/sunliang711/aliddns/types"
 )
 
 func (o *Operator) GetNewIP() (string, error) {
-	log.Printf("GetNewIP()")
-	defer func() {
-		log.Printf("Leave GetNewIP()")
-	}()
 	if len(o.Config.NewIpCommand) > 0 {
+		logrus.Debugf("Get new ip by command: %v", o.Config.NewIpCommand)
 		result, err := exec.Command("sh", "-c", o.Config.NewIpCommand).Output()
 		if err != nil {
 			return "", types.ErrCannotGetIpFromIpCommnad
 		}
 		return string(result), nil
 	} else {
+		logrus.Debugf("Get new ip by ip source")
 		return getIpByRegex(o.Config.NewIpSource, o.filterIpRegex, o.Config.MasterIndex, o.Config.SlaveIndex)
 	}
 }
 
 func getIpByRegex(url string, re *regexp.Regexp, masterIndex, slaveIndex uint) (string, error) {
-	log.Printf("getIpByRegex(): url:%s,masterIndex: %d,slaveIndex: %d", url, masterIndex, slaveIndex)
+	logrus.Debugf("getIpByRegex(): url:%s,masterIndex: %d,slaveIndex: %d", url, masterIndex, slaveIndex)
 
 	res, err := http.Get(url)
 	if err != nil {
-		log.Printf(">>http.Get error: %s", err)
+		logrus.Errorf(">>http.Get error: %s", err)
 		return "", err
 	}
 	var buf bytes.Buffer
 	_, err = io.Copy(&buf, res.Body)
 	if err != nil {
-		log.Printf(">>io.Copy error: %s", err)
+		logrus.Errorf(">>io.Copy error: %s", err)
 		return "", err
 	}
 	result := re.FindAllStringSubmatch(buf.String(), -1)

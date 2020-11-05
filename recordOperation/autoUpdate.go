@@ -2,10 +2,11 @@ package recordOperation
 
 import (
 	"fmt"
-	"github.com/sunliang711/aliddns/types"
-	"log"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/sunliang711/aliddns/types"
 )
 
 func (o *Operator) AutomaticUpdate() {
@@ -22,17 +23,14 @@ func (o *Operator) AutomaticUpdate() {
 }
 
 func (o *Operator) automaticUpdate() {
-	log.Printf("**************************automaticUpdate()**************************")
-	defer func() {
-		log.Printf("**************************Leave automaticUpdate()**************************")
-	}()
+	logrus.Infof("Begin update DDNS...")
 	newValue, err := o.GetNewIP()
 	if err != nil {
-		log.Printf(">>GetNewIp error:%s", err)
+		logrus.Errorf("Get new ip error: %v", err)
 		return
 	}
 	newValue = strings.TrimSpace(newValue)
-	log.Printf("New ip: %s", newValue)
+	logrus.Infof("Got new ip: %s", newValue)
 	//1. getRecordId
 	subDomain := fmt.Sprintf("%v.%v", o.Config.RR, o.Config.DomainName)
 	recordId, currentIp, err := o.GetRecordId(subDomain)
@@ -40,19 +38,19 @@ func (o *Operator) automaticUpdate() {
 		recordId, err = o.AddRecord(o.Config.DomainName, o.Config.Type, o.Config.RR, newValue, o.Config.TTL)
 		return
 	} else if err != nil {
-		log.Printf(">>Exist such subDomain,but cann't get recordId")
+		logrus.Errorf(">>Exist such subDomain,but cann't get recordId")
 		return
 	}
 	currentIp = strings.TrimSpace(currentIp)
-	log.Printf("Current ip: %s", currentIp)
+	logrus.Infof("Current ip( in record id ): %s", currentIp)
 	if currentIp != newValue {
 		//2. update
 		res, err := o.UpdateRecord(recordId, o.Config.RR, o.Config.Type, newValue, o.Config.TTL)
 		if err != nil {
 			return
 		}
-		log.Printf(">>update OK:%v", res)
+		logrus.Infof(">>Update OK:%v", res)
 	} else {
-		log.Printf("currentIp == new ip,do nothing.")
+		logrus.Infof("Do nothing: currentIp == new ip")
 	}
 }

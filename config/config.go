@@ -3,9 +3,10 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"github.com/pelletier/go-toml"
 	"io/ioutil"
-	"log"
+
+	"github.com/pelletier/go-toml"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -14,6 +15,8 @@ type Config struct {
 	PageNumber   string `toml:"page_number"`
 	AccessKey    string `toml:"access_key"`
 	AccessSecret string `toml:"access_secret"`
+
+	Loglevel string `toml:"log_level"`
 	//0 表示只更新一次
 	UpdateInterval uint   `toml:"update_interval"`
 	Type           string `toml:"type"`
@@ -46,10 +49,9 @@ func NewConfig(filename string) (*Config, error) {
 	var cfg Config
 	err = toml.Unmarshal(bs, &cfg)
 	if err != nil {
-		log.Printf("toml.Unmarshal error: %s", err)
 		return nil, err
 	}
-	log.Printf("Config: %+v", cfg)
+	logrus.Infof("Config: %+v", cfg)
 
 	return &cfg, nil
 }

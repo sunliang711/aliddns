@@ -2,12 +2,14 @@ package recordOperation
 
 import (
 	"encoding/json"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
-	"github.com/sunliang711/aliddns/types"
-	"log"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/sirupsen/logrus"
+	"github.com/sunliang711/aliddns/types"
 )
 
 type SubDomainRecordResponse struct {
@@ -34,10 +36,7 @@ type SubDomainRecordResponse struct {
 //查询子域名记录Id
 //return : id,current ip,err
 func (o *Operator) GetRecordId(subDomain string) (string, string, error) {
-	log.Printf("GetRecordId(): subDomain:%v", subDomain)
-	defer func() {
-		log.Printf("Leave GetRecordId()")
-	}()
+	logrus.Infof("GetRecordId...")
 
 	request := alidns.CreateDescribeSubDomainRecordsRequest()
 
@@ -47,28 +46,23 @@ func (o *Operator) GetRecordId(subDomain string) (string, string, error) {
 
 	response, err := o.client.DescribeSubDomainRecords(request)
 	if err != nil {
-		log.Printf(">>DescribeSubDomainRecords error:%s", err)
-		return "", "", err
+		return "", "", fmt.Errorf("GetRecordId error: %v", err)
 	}
 	if response.GetHttpStatus() != http.StatusOK {
-		log.Printf(">>%v", types.ErrHttpStatusNotOK)
-		return "", "", types.ErrHttpStatusNotOK
+		return "", "", fmt.Errorf("GetRecordId error: %v", types.ErrHttpStatusNotOK)
 	}
-	log.Println(">>response Content: ", response.GetHttpContentString())
+	logrus.Infof("Record id info: %v", response.GetHttpContentString())
 	var res SubDomainRecordResponse
 	err = json.Unmarshal(response.GetHttpContentBytes(), &res)
 	if err != nil {
-		log.Printf(">>json.Unmarshal error:%v", err)
-		return "", "", err
+		return "", "", fmt.Errorf("GetRecordId error: %v", err)
 	}
 	if res.TotalCount == 0 {
-		log.Printf(">>%v", types.ErrNoSubDomain)
-		return "", "", types.ErrNoSubDomain
+		return "", "", fmt.Errorf("GetRecordId error: %v", types.ErrNoSubDomain)
 	}
 	//RR.DomainName === subDomain
 	if strings.Compare(res.DomainRecords.Record[0].RR+"."+res.DomainRecords.Record[0].DomainName, subDomain) != 0 {
-		log.Printf(">>%v", types.ErrSubDomainNotMatch)
-		return "", "", types.ErrSubDomainNotMatch
+		return "", "", fmt.Errorf("GetRecordId error: %v", types.ErrSubDomainNotMatch)
 	}
 	return res.DomainRecords.Record[0].RecordId, res.DomainRecords.Record[0].Value, nil
 }

@@ -3,6 +3,9 @@ region_id ="cn-hangzhou"
 page_number ="1"
 page_size = "100"
 
+# trace debug info warn error fatal
+log_level = "debug"
+
 ##替换成自己的key和secret
 access_key = ""
 access_secret =""
