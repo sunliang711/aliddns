@@ -83,6 +83,11 @@ install(){
     sudo mv /tmp/aliddns.service /etc/systemd/system
     echo "Enable aliddns.service"
     sudo systemctl enable aliddns.service
+    echo "edit config file..."
+    if [ ! -e ./config.toml ];then
+        cp ./config-example.toml ./config.toml
+    fi
+    $editor config.toml
     echo "Start aliddns.service"
     sudo systemctl start aliddns.service
 }
